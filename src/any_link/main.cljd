@@ -1,0 +1,13 @@
+(ns any-link.main
+  (:require
+   ["package:flutter/material.dart" :as m]
+   [any-link.preview :as preview]))
+
+(defn main []
+  (m/runApp
+   (m/MaterialApp
+    .title "Welcome to Flutter"
+    .theme (m/ThemeData .primarySwatch m.Colors/blue
+                        .fontFamily "MongolianBaiZheng")
+    .home (preview/view)
+    .debugShowCheckedModeBanner false)))

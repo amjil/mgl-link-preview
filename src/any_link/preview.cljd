@@ -1,0 +1,86 @@
+(ns any-link.preview
+  (:require 
+   ["package:flutter/material.dart" :as m]
+   ["package:mongol/mongol.dart" :as mgl]
+   ["package:any_link_preview/any_link_preview.dart" :as any-link]
+   [cljd.flutter :as f]))
+   
+(defonce app-state (atom nil))
+
+(defn get-link-info [url]
+  (stream
+   (map (fn [result]
+          (swap! app-state assoc :info result)
+          :link-ok))
+   (map (fn [[er st]]
+          :link-error))
+   :as-values
+   (any-link.AnyLinkPreview/getMetadata
+               .link url)))
+
+(defn link-view [url]
+  (f/widget
+   :get {{{w .-width
+           h .-height} .-size} m/MediaQuery}
+   :watch [link-type (get-link-info url)
+           :default :link-progress
+           {info :info} app-state]
+   (cond
+     (= :link-ok link-type)
+     (m/Container
+      .decoration (m/BoxDecoration
+                   .color (-> m/Colors .grey .-shade200)
+                   .borderRadius (m.BorderRadius/circular 12)
+                   .boxShadow [(m/BoxShadow .blurRadius 3 .color m.Colors/grey)])
+      .width (* 0.20 w)
+      .child
+      (m/Padding
+       .padding (m.EdgeInsets/symmetric .vertical 3)
+       .child
+       (m/Row
+        .mainAxisAlignment m.MainAxisAlignment/center
+        .children
+        [(m/Padding
+          .padding (m.EdgeInsets/fromLTRB 4 2 3 1)
+          .child
+          (mgl/MongolText (or (.-title info) "")))
+         (m/Expanded
+          .flex 2
+          .child
+          (m/Padding
+           .padding (m.EdgeInsets/fromLTRB 5 3 5 0)
+           .child
+           (mgl/MongolText (or (.-desc info) ""))))])))
+
+     (= :link-progress link-type)
+     (m/Container 
+      .width (* 0.20 w)
+      .child 
+      (m/LayoutBuilder 
+       .builder 
+       (fn [_ constraints]
+         (m/Container 
+          .color m.Colors/blue
+          .width (-> constraints .-biggest .-width)
+          .height (-> constraints .-biggest .-height)))))
+
+     (= :link-error link-type)
+     (m/Container 
+      .width (* 0.20 w)
+      .height h
+      .decoration (m/BoxDecoration 
+                   .borderRadius (m.BorderRadius/circular 22)
+                   .color (-> m/Colors .grey .-shade200))
+      .alignment m.Alignment/center
+      .child (m/RotatedBox 
+              .quarterTurns 1
+              .child (m/Text "Invalid Link"))))))
+
+(defn view []
+  (m/Scaffold
+   .body
+   (m/SafeArea
+    .child
+    (m/Container
+     .child
+     (link-view "https://pub.dev/packages/any_link_preview")))))

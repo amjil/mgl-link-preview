@@ -1,0 +1,7 @@
+{:paths ["src"] ; where your cljd files are
+ :deps {tensegritics/clojuredart
+        {:git/url "https://github.com/tensegritics/ClojureDart.git"
+         :sha "05f2ff1f2ad7a8799a28dfb1a7bf5b7e98eab37d"}}
+ :aliases {:cljd {:main-opts ["-m" "cljd.build"]}}
+ :cljd/opts {:kind :flutter
+             :main any-link.main}}
