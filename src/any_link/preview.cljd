@@ -39,16 +39,17 @@
        .child
        (m/Row
         .mainAxisAlignment m.MainAxisAlignment/center
+        .crossAxisAlignment m.CrossAxisAlignment/start
         .children
         [(m/Padding
-          .padding (m.EdgeInsets/fromLTRB 4 2 3 1)
+          .padding (m.EdgeInsets/fromLTRB 1 4 2 3)
           .child
           (mgl/MongolText (or (.-title info) "")))
          (m/Expanded
           .flex 2
           .child
           (m/Padding
-           .padding (m.EdgeInsets/fromLTRB 5 3 5 0)
+           .padding (m.EdgeInsets/fromLTRB 0 5 3 5)
            .child
            (mgl/MongolText (or (.-desc info) ""))))])))
 
