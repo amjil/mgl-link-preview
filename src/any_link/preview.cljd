@@ -65,7 +65,10 @@
           [(m/Padding
             .padding (m.EdgeInsets/fromLTRB 1 4 2 3)
             .child
-            (mgl/MongolText (or (.-title info) "")))
+            (mgl/MongolText (or (.-title info) "")
+                            .style (m/TextStyle 
+                                    .fontSize 20
+                                    .fontWeight m.FontWeight/w400)))
            (m/Expanded
             .flex 2
             .child
@@ -99,10 +102,10 @@
               .child (m/Text "Invalid Link"))))))
 
 (defn view []
-  (m/Scaffold
+  (f/widget
+   (m/Scaffold)
    .body
-   (m/SafeArea
-    .child
-    (m/Container
-     .child
-     (link-view "https://pub.dev/packages/any_link_preview")))))
+   (m/SafeArea)
+   (m/Container)
+   (m/Center)
+   (link-view "https://pub.dev/packages/any_link_preview")))
