@@ -37,21 +37,42 @@
       (m/Padding
        .padding (m.EdgeInsets/symmetric .vertical 3)
        .child
-       (m/Row
-        .mainAxisAlignment m.MainAxisAlignment/center
-        .crossAxisAlignment m.CrossAxisAlignment/start
+       (m/Column
         .children
-        [(m/Padding
-          .padding (m.EdgeInsets/fromLTRB 1 4 2 3)
-          .child
-          (mgl/MongolText (or (.-title info) "")))
+        [(if (empty? (.-image info))
+           (m/Container)
+           (m/Expanded
+            .flex 2
+            .child
+            (m/Container
+             .margin (m.EdgeInsets/only .bottom 5)
+             .decoration (m/BoxDecoration
+                          .image
+                          (m/DecorationImage
+                           .image (m/NetworkImage (.-image info))
+                           .fit m.BoxFit/cover)
+                          .borderRadius
+                          (m.BorderRadius/only
+                           .topLeft (m.Radius/circular 10)
+                           .topRight (m.Radius/circular 10))))))
          (m/Expanded
-          .flex 2
+          .flex 4
           .child
-          (m/Padding
-           .padding (m.EdgeInsets/fromLTRB 0 5 3 5)
-           .child
-           (mgl/MongolText (or (.-desc info) ""))))])))
+         (m/Row
+          .mainAxisAlignment m.MainAxisAlignment/center
+          .crossAxisAlignment m.CrossAxisAlignment/start
+          .children
+          [(m/Padding
+            .padding (m.EdgeInsets/fromLTRB 1 4 2 3)
+            .child
+            (mgl/MongolText (or (.-title info) "")))
+           (m/Expanded
+            .flex 2
+            .child
+            (m/Padding
+             .padding (m.EdgeInsets/fromLTRB 0 5 3 5)
+             .child
+             (mgl/MongolText (or (.-desc info) ""))))]))])))
 
      (= :link-progress link-type)
      (m/Container 
