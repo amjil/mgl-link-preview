@@ -5,12 +5,10 @@
    ["package:any_link_preview/any_link_preview.dart" :as any-link]
    [cljd.flutter :as f]))
    
-(defonce app-state (atom nil))
-
-(defn get-link-info [url]
+(defn get-link-info [state url]
   (stream
    (map (fn [result]
-          (swap! app-state assoc :info result)
+          (swap! state assoc :info result)
           :link-ok))
    (map (fn [[er st]]
           :link-error))
@@ -19,87 +17,88 @@
                .link url)))
 
 (defn link-view [url]
-  (f/widget
-   :get {{{w .-width
-           h .-height} .-size} m/MediaQuery}
-   :watch [link-type (get-link-info url)
-           :default :link-progress
-           {info :info} app-state]
-   (cond
-     (= :link-ok link-type)
-     (m/Container
-      .decoration (m/BoxDecoration
-                   .color (-> m/Colors .grey .-shade200)
-                   .borderRadius (m.BorderRadius/circular 12)
-                   .boxShadow [(m/BoxShadow .blurRadius 3 .color m.Colors/grey)])
-      .width (* 0.20 w)
-      .child
-      (m/Padding
-       .padding (m.EdgeInsets/symmetric .vertical 3)
-       .child
-       (m/Column
-        .children
-        [(if (empty? (.-image info))
-           (m/Container)
-           (m/Expanded
-            .flex 2
-            .child
-            (m/Container
-             .margin (m.EdgeInsets/only .bottom 5)
-             .decoration (m/BoxDecoration
-                          .image
-                          (m/DecorationImage
-                           .image (m/NetworkImage (.-image info))
-                           .fit m.BoxFit/cover)
-                          .borderRadius
-                          (m.BorderRadius/only
-                           .topLeft (m.Radius/circular 10)
-                           .topRight (m.Radius/circular 10))))))
-         (m/Expanded
-          .flex 4
-          .child
-         (m/Row
-          .mainAxisAlignment m.MainAxisAlignment/center
-          .crossAxisAlignment m.CrossAxisAlignment/start
+  (let [local-state (atom nil)]
+    (f/widget
+     :get {{{w .-width
+             h .-height} .-size} m/MediaQuery}
+     :watch [link-type (get-link-info local-state url)
+             :default :link-progress
+             {info :info} local-state]
+     (cond
+       (= :link-ok link-type)
+       (m/Container
+        .decoration (m/BoxDecoration
+                     .color (-> m/Colors .grey .-shade200)
+                     .borderRadius (m.BorderRadius/circular 12)
+                     .boxShadow [(m/BoxShadow .blurRadius 3 .color m.Colors/grey)])
+        .width (* 0.20 w)
+        .child
+        (m/Padding
+         .padding (m.EdgeInsets/symmetric .vertical 3)
+         .child
+         (m/Column
           .children
-          [(m/Padding
-            .padding (m.EdgeInsets/fromLTRB 1 4 2 3)
-            .child
-            (mgl/MongolText (or (.-title info) "")
-                            .style (m/TextStyle 
-                                    .fontSize 20
-                                    .fontWeight m.FontWeight/w400)))
+          [(if (empty? (.-image info))
+             (m/Container)
+             (m/Expanded
+              .flex 2
+              .child
+              (m/Container
+               .margin (m.EdgeInsets/only .bottom 5)
+               .decoration (m/BoxDecoration
+                            .image
+                            (m/DecorationImage
+                             .image (m/NetworkImage (.-image info))
+                             .fit m.BoxFit/cover)
+                            .borderRadius
+                            (m.BorderRadius/only
+                             .topLeft (m.Radius/circular 10)
+                             .topRight (m.Radius/circular 10))))))
            (m/Expanded
-            .flex 2
+            .flex 4
             .child
-            (m/Padding
-             .padding (m.EdgeInsets/fromLTRB 0 5 3 5)
-             .child
-             (mgl/MongolText (or (.-desc info) ""))))]))])))
+            (m/Row
+             .mainAxisAlignment m.MainAxisAlignment/center
+             .crossAxisAlignment m.CrossAxisAlignment/start
+             .children
+             [(m/Padding
+               .padding (m.EdgeInsets/fromLTRB 1 4 2 3)
+               .child
+               (mgl/MongolText (or (.-title info) "")
+                               .style (m/TextStyle
+                                       .fontSize 20
+                                       .fontWeight m.FontWeight/w400)))
+              (m/Expanded
+               .flex 2
+               .child
+               (m/Padding
+                .padding (m.EdgeInsets/fromLTRB 0 5 3 5)
+                .child
+                (mgl/MongolText (or (.-desc info) ""))))]))])))
 
-     (= :link-progress link-type)
-     (m/Container 
-      .width (* 0.20 w)
-      .child 
-      (m/LayoutBuilder 
-       .builder 
-       (fn [_ constraints]
-         (m/Container 
-          .color m.Colors/blue
-          .width (-> constraints .-biggest .-width)
-          .height (-> constraints .-biggest .-height)))))
+       (= :link-progress link-type)
+       (m/Container
+        .width (* 0.20 w)
+        .child
+        (m/LayoutBuilder
+         .builder
+         (fn [_ constraints]
+           (m/Container
+            .color m.Colors/blue
+            .width (-> constraints .-biggest .-width)
+            .height (-> constraints .-biggest .-height)))))
 
-     (= :link-error link-type)
-     (m/Container 
-      .width (* 0.20 w)
-      .height h
-      .decoration (m/BoxDecoration 
-                   .borderRadius (m.BorderRadius/circular 22)
-                   .color (-> m/Colors .grey .-shade200))
-      .alignment m.Alignment/center
-      .child (m/RotatedBox 
-              .quarterTurns 1
-              .child (m/Text "Invalid Link"))))))
+       (= :link-error link-type)
+       (m/Container
+        .width (* 0.20 w)
+        .height h
+        .decoration (m/BoxDecoration
+                     .borderRadius (m.BorderRadius/circular 22)
+                     .color (-> m/Colors .grey .-shade200))
+        .alignment m.Alignment/center
+        .child (m/RotatedBox
+                .quarterTurns 1
+                .child (m/Text "Invalid Link")))))))
 
 (defn view []
   (f/widget
